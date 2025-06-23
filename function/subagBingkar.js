@@ -8,4 +8,5 @@ const dataBingkar = [
     ["dok", "mendatakan personel polres pelabuhan tanjung priok yang sudah mengikuti dikjur", 1, 2, "-"],
     ["dok", "mendatakan personel polres pelabuhan tanjung priok yang belum mengikuti pelatihan", 1, 1, "-"],
 ];
+console.log(dataBingkar[0])
 module.exports = { dataBingkar };
