@@ -71,7 +71,7 @@ function sleep(ms) {
     const start = Date.now();
     while (Date.now() - start < ms) {}
 }
-sleep(1000); // Optional delay for readability
+sleep(120); // Optional delay for readability
 }
 
 console.log('🧪 Running tests...\n');
