@@ -1,3 +1,6 @@
+const XLSX = require("xlsx");
+const path = require("path");
+const fs = require("fs");
 const dataBingkar = require("./subagBingkar.js").dataBingkar;
 const dataDalpres = require("./subagDalpres.js").dataDalpres;
 /**
@@ -42,27 +45,47 @@ function todayInName(dateParam = null) {
  * @param {string} [jenis] - The type of report to generate (not used currently).
  * @returns {any[][]} The generated report.
  */
-function generateGiat(data, randomNumbers,dateParam, jenis =null) {
+function generateGiat(data, randomNumbers, jenis =null) {
     const result = [];
     result.push(["Tanggal","Kategori", "Uraian", "Jumlah Giat", "Jumlah Waktu (per jam)", "Keterangan"]);
     const randomNumbersSeed = randomNumbers; // Keep the original random numbers for logging
     // Log the original random numbers for debugging or verification purposes
     console.log("Random Numbers Seed:", randomNumbersSeed);
-    const today = todayInName(dateParam);
+    const today = todayInName(data[1][0]);
     while (randomNumbers.length > 0) {
+        // result.push(today);
         result.push(data[randomNumbers[0]]);
         randomNumbers.shift(); // Remove the used number
+        
     }
     if (data && data[0]) {
         result[1] = data[0]; // Set the first row to the first data entry
     }
-            if (data.length > 1) {
-                result[2] = data[1]; // Set the second row to the second data entry
-            }
-        if (today === "Jumat") {
-            result[2] = data[1]; // Set the second row to the second data entry
+    //         if (data.length > 1) {
+    //             result[2] = data[1]; // Set the second row to the second data entry
+    //         }
+        if (today === "Jumat" && jenis === "Subag Bingkar") {
+          result[2] = data[1]; // Set the second row to the second data entry
         }
         return result;
     }
 
-module.exports = { generateGiat, pick5RandomNumbers, todayInName };
+function generateGiatToXLSX(dateParam, data, jenis = null) {
+    const XLSX = require("xlsx");
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, jenis);
+
+    const filePath = path.join(__dirname, jenis + "_" + dateParam + ".xlsx");
+    XLSX.writeFile(workbook, filePath);
+
+    res.download(filePath, jenis + "_" + dateParam + ".xlsx", (err) => {
+      if (err) console.error("Download error:", err);
+      // Optional: hapus file setelah download
+      fs.unlink(filePath, () => {});
+    });
+}
+console.log(generateGiat(dataBingkar("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Bingkar"));
+console.log(generateGiat(dataDalpres("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Dalpres"));
+// console.log(generateGiatToXLSX("2024-01-01", generateGiat(dataBingkar, pick5RandomNumbers(2, 7, 5)), "Subag Bingkar"));
+module.exports = { generateGiat, pick5RandomNumbers, todayInName, generateGiatToXLSX };
