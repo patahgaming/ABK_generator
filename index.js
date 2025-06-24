@@ -3,7 +3,7 @@ const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
 // const { console } = require("inspector");
-const pick5RandomNumbers = require("./function/picknum.js").pick5RandomNumbers;
+// const pick5RandomNumbers = require("./function/picknum.js").pick5RandomNumbers;
 const app = express();
 const PORT = 3000;
 app.use(express.urlencoded({ extended: true }));
