@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Report Excel Generator ✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+        
+        /* Glassmorphism container */
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        
+        .main-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .main-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .excel-icon {
+            font-size: 4rem;
+            background: linear-gradient(45deg, #2ECC71, #27AE60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        h1 {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+        
+        /* Report type selector */
+        .report-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .report-card:hover::before {
+            left: 100%;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .report-card.selected {
+            border-color: #2ECC71;
+            box-shadow: 0 0 30px rgba(46, 204, 113, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .report-card h3 {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .report-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .report-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Date selection */
+        .date-section {
+            margin-bottom: 40px;
+        }
+        
+        .date-section h2 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .date-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .date-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        input[type="date"]:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 18px 35px;
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        }
+        
+        .download-all-btn {
+            background: linear-gradient(45deg, #2ECC71, #27AE60);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+        }
+        
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: all 0.6s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .action-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-5px);
+        }
+        
+        .action-btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .action-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Loading and success states */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+        
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Download links */
+        .download-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .download-section h3 {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .download-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .download-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .download-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(10px);
+        }
+        
+        .download-link .link-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .download-link .link-icon {
+            font-size: 1.5rem;
+        }
+        
+        .download-link .link-text {
+            font-weight: 500;
+        }
+        
+        .download-link .download-icon {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: linear-gradient(45deg, #2ECC71, #27AE60);
+            color: white;
+        }
+        
+        .notification.error {
+            background: linear-gradient(45deg, #E74C3C, #C0392B);
+            color: white;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main-wrapper {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .excel-icon {
+                font-size: 3rem;
+            }
+            
+            .report-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-wrapper {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        /* Glow effects */
+        .glow-1, .glow-2, .glow-3 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: glow 4s ease-in-out infinite alternate;
+        }
+        
+        .glow-1 {
+            top: 10%;
+            left: 10%;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+        }
+        
+        .glow-2 {
+            top: 60%;
+            right: 10%;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #2ECC71, #27AE60);
+        }
+        
+        .glow-3 {
+            bottom: 20%;
+            left: 20%;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #3498DB, #2980B9);
+        }
+        
+        @keyframes glow {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+            100% { transform: scale(1.2) rotate(180deg); opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particles"></div>
+    
+    <!-- Glowing orbs -->
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+    <div class="glow-3"></div>
+    
+    <div class="container">
+        <div class="main-wrapper">
+            <div class="header">
+                <div class="excel-icon">📊</div>
+                <h1>Multi-Report Generator</h1>
+                <p class="subtitle">Select report types and generate multiple Excel files</p>
+            </div>
+            
+            <!-- Report Type Selection -->
+            <div class="report-selector">
+                <div class="report-card" data-type="subag-bingkar">
+                    <span class="report-icon">📦</span>
+                    <h3>Subag Bingkar</h3>
+                    <p>Generate comprehensive unloading reports with detailed analytics and tracking information</p>
+                </div>
+                
+                <div class="report-card" data-type="subag-dalpres">
+                    <span class="report-icon">📋</span>
+                    <h3>Subag Dalpres</h3>
+                    <p>Create detailed internal process reports with operational metrics and performance data</p>
+                </div>
+            </div>
+            
+            <!-- Date Selection -->
+            <div class="date-section">
+                <h2>📅 Select Date Range</h2>
+                <div class="date-wrapper">
+                    <div class="date-group">
+                        <label for="date">Report Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="button" class="action-btn generate-btn" id="generateBtn">
+                    <span>Generate Selected Reports</span>
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+                
+                <button type="button" class="action-btn download-all-btn" id="downloadAllBtn" disabled>
+                    <span>Download All Reports</span>
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Download Links Section -->
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <h3>📥 Available Downloads</h3>
+                <div class="download-links" id="downloadLinks">
+                    <!-- Download links will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notifications -->
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        // State management
+        let selectedReports = new Set();
+        let generatedReports = [];
+        
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Report card selection
+        document.querySelectorAll('.report-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const reportType = card.dataset.type;
+                
+                if (selectedReports.has(reportType)) {
+                    selectedReports.delete(reportType);
+                    card.classList.remove('selected');
+                } else {
+                    selectedReports.add(reportType);
+                    card.classList.add('selected');
+                }
+                
+                updateGenerateButton();
+            });
+        });
+        
+        // Update generate button state
+        function updateGenerateButton() {
+            const generateBtn = document.getElementById('generateBtn');
+            const dateInput = document.getElementById('date');
+            
+            if (selectedReports.size > 0 && dateInput.value) {
+                generateBtn.disabled = false;
+            } else {
+                generateBtn.disabled = true;
+            }
+        }
+        
+        // Date input change
+        document.getElementById('date').addEventListener('change', updateGenerateButton);
+        
+        // Generate reports
+        document.getElementById('generateBtn').addEventListener('click', async function() {
+            const dateInput = document.getElementById('date');
+            
+            if (selectedReports.size === 0) {
+                showNotification('Please select at least one report type', 'error');
+                return;
+            }
+            
+            if (!dateInput.value) {
+                showNotification('Please select a date', 'error');
+                return;
+            }
+            
+            const btn = this;
+            const btnText = btn.querySelector('span');
+            const loading = btn.querySelector('.loading');
+            
+            // Show loading
+            btnText.style.opacity = '0';
+            loading.style.display = 'block';
+            btn.disabled = true;
+            
+            try {
+                generatedReports = [];
+                
+                // Generate each selected report
+                for (const reportType of selectedReports) {
+                    await generateReport(reportType, dateInput.value);
+                }
+                
+                // Show download section
+                updateDownloadSection();
+                document.getElementById('downloadSection').style.display = 'block';
+                document.getElementById('downloadAllBtn').disabled = false;
+                
+                showNotification(`Successfully generated ${generatedReports.length} report(s)`, 'success');
+                
+            } catch (error) {
+                showNotification('Error generating reports. Please try again.', 'error');
+            } finally {
+                // Reset button
+                loading.style.display = 'none';
+                btnText.style.opacity = '1';
+                btn.disabled = false;
+            }
+        });
+        
+        // Generate single report (simulate API call)
+        async function generateReport(reportType, date) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const reportName = reportType === 'subag-bingkar' ? 'Subag Bingkar Report' : 'Subag Dalpres Report';
+                    const reportData = {
+                        type: reportType,
+                        name: reportName,
+                        date: date,
+                        url: `/generate-excel/${reportType}/`,
+                        fileName: `${reportType}_${date}.xlsx`
+                    };
+                    
+                    generatedReports.push(reportData);
+                    resolve(reportData);
+                }, 1000);
+            });
+        }
+        
+        // Update download section
+        function updateDownloadSection() {
+            const downloadLinks = document.getElementById('downloadLinks');
+            downloadLinks.innerHTML = '';
+            
+            generatedReports.forEach(report => {
+                const linkElement = document.createElement('a');
+                linkElement.className = 'download-link';
+                linkElement.href = '#';
+                linkElement.onclick = (e) => {
+                    e.preventDefault();
+                    downloadReport(report);
+                };
+                
+                linkElement.innerHTML = `
+                    <div class="link-info">
+                        <span class="link-icon">${report.type === 'subag-bingkar' ? '📦' : '📋'}</span>
+                        <div>
+                            <div class="link-text">${report.name}</div>
+                            <div style="font-size: 0.85rem; opacity: 0.7;">${report.date}</div>
+                        </div>
+                    </div>
+                    <span class="download-icon">⬇️</span>
+                `;
+                
+                downloadLinks.appendChild(linkElement);
+            });
+        }
+        
+        // Download single report
+        function downloadReport(report) {
+            // Create and submit form
+            const form = document.createElement('form');
+            form.action = report.url;
+            form.method = 'post';
+            form.style.display = 'none';
+            
+            const dateInput = document.createElement('input');
+            dateInput.type = 'hidden';
+            dateInput.name = 'date';
+            dateInput.value = report.date;
+            
+            form.appendChild(dateInput);
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            showNotification(`Downloading ${report.name}...`, 'success');
+        }
+        
+        // Download all reports
+        document.getElementById('downloadAllBtn').addEventListener('click', function() {
+            const btn = this;
+            const btnText = btn.querySelector('span');
+            const loading = btn.querySelector('.loading');
+            
+            // Show loading
+            btnText.style.opacity = '0';
+            loading.style.display = 'block';
+            btn.disabled = true;
+            
+            // Download each report with delay
+            generatedReports.forEach((report, index) => {
+                setTimeout(() => {
+                    downloadReport(report);
+                    
+                    // Reset button after last download
+                    if (index === generatedReports.length - 1) {
+                        setTimeout(() => {
+                            loading.style.display = 'none';
+                            btnText.style.opacity = '1';
+                            btn.disabled = false;
+                        }, 1000);
+                    }
+                }, index * 500);
+            });
+            
+            showNotification(`Downloading ${generatedReports.length} reports...`, 'success');
+        });
+        
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Initialize
+        createParticles();
+        updateGenerateButton();
+        
+        // Add interactive cursor effect
+        document.addEventListener('mousemove', (e) => {
+            const cursor = document.querySelector('.cursor');
+            if (!cursor) {
+                const newCursor = document.createElement('div');
+                newCursor.className = 'cursor';
+                newCursor.style.cssText = `
+                    position: fixed;
+                    width: 20px;
+                    height: 20px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
+                    border-radius: 50%;
+                    pointer-events: none;
+                    z-index: 9999;
+                    transition: transform 0.1s ease;
+                `;
+                document.body.appendChild(newCursor);
+            }
+            
+            const cursorElement = document.querySelector('.cursor');
+            cursorElement.style.left = e.clientX - 10 + 'px';
+            cursorElement.style.top = e.clientY - 10 + 'px';
+        });
+    </script>
+</body>
+</html>

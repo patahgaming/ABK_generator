@@ -70,6 +70,14 @@ function generateGiat(data, randomNumbers, jenis =null) {
         return result;
     }
 
+/**
+ * Generates an Excel file based on the given data and downloads it.
+ *
+ * @param {string | number | Date} dateParam - The date parameter to use for the file name.
+ * @param {any[][]} data - The data to use for generating the Excel file.
+ * @param {string} [jenis] - The type of report to generate (used as the file name prefix).
+ * @returns {undefined}
+ */
 function generateGiatToXLSX(dateParam, data, jenis = null) {
     const XLSX = require("xlsx");
     const worksheet = XLSX.utils.aoa_to_sheet(data);
@@ -85,7 +93,7 @@ function generateGiatToXLSX(dateParam, data, jenis = null) {
       fs.unlink(filePath, () => {});
     });
 }
-console.log(generateGiat(dataBingkar("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Bingkar"));
-console.log(generateGiat(dataDalpres("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Dalpres"));
+// console.log(generateGiat(dataBingkar("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Bingkar"));
+// console.log(generateGiat(dataDalpres("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Dalpres"));
 // console.log(generateGiatToXLSX("2024-01-01", generateGiat(dataBingkar, pick5RandomNumbers(2, 7, 5)), "Subag Bingkar"));
 module.exports = { generateGiat, pick5RandomNumbers, todayInName, generateGiatToXLSX };
