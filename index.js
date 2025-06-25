@@ -22,18 +22,6 @@ app.post("/generate-excel/subag-bingkar/", (req, res) => {
   // Data Preset
   const dateParam = req.body.date;
   const data = generateGiat(dataBingkar(dateParam), pick5RandomNumbers(2, 7, 5),"Subag Bingkar");
-  // console.log("Generating Excel for date: %s\n", dateParam);
-  // const data = [
-  //   ["Tanggal","Kategori", "Uraian", "Jumlah Giat", "Jumlah Waktu (per jam)", "Keterangan"],
-  //   [dateParam,"giat", "APEL DI MAKO POLRES", 3, 1, "-"],//setiap hari apel pagi
-  //   [dateParam,"dok", "MEMBUAT SPRINT TUGAS", 1, 3, "-"],
-  //   [dateParam,"dok", "MENGUPDATE SIPK ONLINE", 1, 2, "-"],
-  //   [dateParam,"dok", "ADMINISTRASI MENGENAI UKGB", 1, 2, "-"],
-  //   [dateParam,"dok", "MENGUPDATE DATA PADA APLIKASI SIPP", 1, 2, "-"],
-  //   [dateParam,"dok", "PELAKSANAAN ADMINISTRASI ASSESMEN", 1, 4, "-"],
-  //   [dateParam,"dok", "melaksanakan administrasi pegawai polri dalam pembinaan karir meliputi usulan kenaikan pangkat & mutasi serta pengangkatan & pemberhentian dalam jabatan", 1, 3, "-"],
-  //   [dateParam,"dok", "pembinaan karir personel meliputi mutasi , pengangkatan dan pemberentian dalam jabatan", 1, 3, "-"]
-  // ];
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
   const workbook = XLSX.utils.book_new();
@@ -45,7 +33,7 @@ app.post("/generate-excel/subag-bingkar/", (req, res) => {
   res.download(filePath, "Subag_Bingkar_"+dateParam+".xlsx", (err) => {
     if (err) console.error("Download error:", err);
     // Optional: hapus file setelah download
-    fs.unlink(filePath, () => {});
+    // fs.unlink(filePath, () => {});
   });
 });
 
@@ -54,17 +42,6 @@ app.post("/generate-excel/subag-dalpres/", (req, res) => {
   const dateParam = req.body.date;
   // console.log("Generating Excel for date: %s\n", dateParam);
   const data = generateGiat(dataDalpres(dateParam), pick5RandomNumbers(2, 7, 5),"Subag Dalpres");
-  // const data = [
-  //   [dateParam,"Tanggal","Kategori", "Uraian", "Jumlah Giat", "Jumlah Waktu (per jam)", "Keterangan"],
-  //   [dateParam,"giat", "APEL DI MAKO POLRES", 3, 1, "-"],
-  //   [dateParam,"dok", "MEMBUAT SPRINT TUGAS", 1, 3, "-"],
-  //   [dateParam,"dok", "MENGUPDATE SIPK ONLINE", 1, 2, "-"],
-  //   [dateParam,"dok", "ADMINISTRASI MENGENAI UKGB", 1, 2, "-"],
-  //   [dateParam,"dok", "MENGUPDATE DATA PADA APLIKASI SIPP", 1, 2, "-"],
-  //   [dateParam,"dok", "PELAKSANAAN ADMINISTRASI ASSESMEN", 1, 4, "-"],
-  //   [dateParam,"dok", "melaksanakan administrasi pegawai polri dalam pembinaan karir meliputi usulan kenaikan pangkat & mutasi serta pengangkatan & pemberhentian dalam jabatan", 1, 3, "-"],
-  //   [dateParam,"dok", "pembinaan karir personel meliputi mutasi , pengangkatan dan pemberentian dalam jabatan", 1, 3, "-"]
-  // ];
 
   const worksheet = XLSX.utils.aoa_to_sheet(data);
   const workbook = XLSX.utils.book_new();
@@ -76,7 +53,7 @@ app.post("/generate-excel/subag-dalpres/", (req, res) => {
   res.download(filePath, "Subag_dalpres_"+dateParam+".xlsx", (err) => {
     if (err) console.error("Download error:", err);
     // Optional: hapus file setelah download
-    fs.unlink(filePath, () => {});
+    // fs.unlink(filePath, () => {});
   });
 });
 
