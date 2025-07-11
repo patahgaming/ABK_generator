@@ -1,8 +1,14 @@
 const XLSX = require("xlsx");
 const path = require("path");
 const fs = require("fs");
-const dataBingkar = require("./subagBingkar.js").dataBingkar;
-const dataDalpres = require("./subagDalpres.js").dataDalpres;
+const dataBingkar = require("./DataSubag.js").dataBingkar;
+const dataDalpres = require("./DataSubag.js").dataDalpres;
+const chalk = require('chalk');
+
+
+const express = require("express");
+const { exit } = require("process");
+const app = express();
 /**
  * Generates an array of unique random integers within a specified range.
  *
@@ -45,7 +51,7 @@ function todayInName(dateParam = null) {
  * @param {string} [jenis] - The type of report to generate (not used currently).
  * @returns {any[][]} The generated report.
  */
-function generateGiat(data, randomNumbers, jenis =null) {
+function generateGiat(data, randomNumbers, jenis) {
     const result = [];
     result.push(["Tanggal","Kategori", "Uraian", "Jumlah Giat", "Jumlah Waktu (per jam)", "Keterangan"]);
     const randomNumbersSeed = randomNumbers; // Keep the original random numbers for logging
@@ -64,7 +70,7 @@ function generateGiat(data, randomNumbers, jenis =null) {
     //         if (data.length > 1) {
     //             result[2] = data[1]; // Set the second row to the second data entry
     //         }
-        if (today === "Jumat" && jenis === "Subag Bingkar") {
+        if (today === "Jumat" && jenis === "Subag Dalpres") {
           result[2] = data[1]; // Set the second row to the second data entry
         }
         return result;
@@ -78,21 +84,68 @@ function generateGiat(data, randomNumbers, jenis =null) {
  * @param {string} [jenis] - The type of report to generate (used as the file name prefix).
  * @returns {undefined}
  */
-function generateGiatToXLSX(dateParam, data, jenis = null) {
-    const XLSX = require("xlsx");
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, jenis);
+function generateGiatToXLSX(dateParam, jenis, res) {
+  console.info(chalk.yellow("Start of generateGiatToXLSX info"));
+  // console.log(pick5RandomNumbers());
+  // Data Preset
+  // const dateParam = dateParam;
+  console.log("Generating Excel for date:", dateParam);
+  console.log("Jenis:", jenis);
+  let data;
+  if (jenis == "subag-bingkar") {
+    data = generateGiat(dataBingkar(dateParam), pick5RandomNumbers(2, 7, 5), jenis);
+    console.log("data:", data);
+  }
+  if (jenis == "subag-dalpres") {
+    data = generateGiat(dataDalpres(dateParam), pick5RandomNumbers(2, 7, 5), jenis);
+    console.log("data:", data);
+  }
+  if (!data) {
+    console.error("Data is undefined");
+    return;
+  }
+  // const data = generateGiat(dataBingkar(dateParam), pick5RandomNumbers(2, 7, 5),jenis);
+  // console.log("data:", data);
+  const worksheet = XLSX.utils.aoa_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, jenis);
 
-    const filePath = path.join(__dirname, jenis + "_" + dateParam + ".xlsx");
-    XLSX.writeFile(workbook, filePath);
+  const filePath = path.join(__dirname, jenis+"_"+dateParam+".xlsx");
+  XLSX.writeFile(workbook, filePath);
 
-    res.download(filePath, jenis + "_" + dateParam + ".xlsx", (err) => {
-      if (err) console.error("Download error:", err);
-      // Optional: hapus file setelah download
-      fs.unlink(filePath, () => {});
-    });
+  res.download(filePath, jenis+"_"+dateParam+".xlsx", (err) => {
+    if (err) console.error("Download error:", err);
+    // Optional: hapus file setelah download
+    fs.unlink(filePath, () => {});
+  });
+  console.info(chalk.yellow("End of generateGiatToXLSX info"));
 }
+
+
+// app.post("/generate-excel/subag-bingkar/", (req, res) => {
+
+// });
+
+// app.post("/generate-excel/subag-dalpres/", (req, res) => {
+//   // Data Preset
+//   const dateParam = req.body.date;
+//   // console.log("Generating Excel for date: %s\n", dateParam);
+//   const data = generateGiat(dataDalpres(dateParam), pick5RandomNumbers(2, 7, 5),"Subag Dalpres");
+
+//   const worksheet = XLSX.utils.aoa_to_sheet(data);
+//   const workbook = XLSX.utils.book_new();
+//   XLSX.utils.book_append_sheet(workbook, worksheet, "Subag dalpres");
+
+//   const filePath = path.join(__dirname, "Subag_dalpres_"+dateParam+".xlsx");
+//   XLSX.writeFile(workbook, filePath);
+
+//   res.download(filePath, "Subag_dalpres_"+dateParam+".xlsx", (err) => {
+//     if (err) console.error("Download error:", err);
+//     // Optional: hapus file setelah download
+//     // fs.unlink(filePath, () => {});
+//   });
+// });
+
 // console.log(generateGiat(dataBingkar("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Bingkar"));
 // console.log(generateGiat(dataDalpres("2025-06-26"), pick5RandomNumbers(2, 7, 5),"Subag Dalpres"));
 // console.log(generateGiatToXLSX("2024-01-01", generateGiat(dataBingkar, pick5RandomNumbers(2, 7, 5)), "Subag Bingkar"));
